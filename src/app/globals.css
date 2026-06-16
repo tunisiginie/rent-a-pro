@@ -1,0 +1,122 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-sans);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+}
+
+/*
+  Oaklandish / FinTrackr dark design system.
+  Palette carried over from the original vanilla app (legacy/styles.css).
+  Dark mode is the default and only theme.
+*/
+:root,
+.dark {
+  --background: #0a0a0f;
+  --foreground: #f8fafc;
+  --card: #14141c;
+  --card-foreground: #f8fafc;
+  --popover: #14141c;
+  --popover-foreground: #f8fafc;
+  --primary: #6366f1; /* indigo */
+  --primary-foreground: #ffffff;
+  --secondary: #1e1e2d;
+  --secondary-foreground: #f8fafc;
+  --muted: #1a1a26;
+  --muted-foreground: #94a3b8;
+  --accent: #232333;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #6366f1;
+
+  /* Vibrant chart sequence (allocation donut + accents) */
+  --chart-1: #6366f1; /* indigo  */
+  --chart-2: #8b5cf6; /* violet  */
+  --chart-3: #10b981; /* emerald */
+  --chart-4: #f59e0b; /* amber   */
+  --chart-5: #06b6d4; /* cyan    */
+
+  --radius: 0.875rem;
+
+  /* Brand */
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --glass-blur: blur(12px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: dark;
+  }
+}
+
+@layer utilities {
+  /* Frosted-glass surface used by cards, header and bottom nav. */
+  .glass {
+    background: rgba(23, 23, 33, 0.7);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
+  }
+  .text-gradient {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-gradient-brand {
+    background: var(--accent-gradient);
+  }
+  .text-success {
+    color: var(--success);
+  }
+  .text-danger {
+    color: var(--destructive);
+  }
+}
