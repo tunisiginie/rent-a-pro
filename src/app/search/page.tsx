@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { getCategories, searchExperts } from "@/lib/queries";
+import { getCategories, getClosestExperts, searchExperts } from "@/lib/queries";
 import { SearchBar } from "@/components/search-bar";
 import { ExpertCard } from "@/components/expert-card";
+import { NotifyMeButton } from "@/components/notify-me-button";
 import { Badge } from "@/components/ui/badge";
 
 export default async function SearchPage({
@@ -15,6 +16,8 @@ export default async function SearchPage({
     getCategories(),
   ]);
   const activeCategory = categories.find((c) => c.slug === category);
+  const closest =
+    experts.length === 0 ? await getClosestExperts(category) : [];
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -46,9 +49,26 @@ export default async function SearchPage({
           ))}
         </div>
       ) : (
-        <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          No matching pros found. Try a different search or category.
-        </p>
+        <div className="space-y-6">
+          <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            No matching pros found. Try a different search or category.
+          </p>
+
+          {closest.length > 0 ? (
+            <div>
+              <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+                Closest pros who might help
+              </h2>
+              <div className="grid gap-3">
+                {closest.map((e) => (
+                  <ExpertCard key={e.id} expert={e} />
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <NotifyMeButton query={q ?? ""} category={category ?? null} />
+        </div>
       )}
     </div>
   );

@@ -60,6 +60,37 @@ export async function searchExperts({
   return (data as ExpertProfile[]) ?? [];
 }
 
+/**
+ * Fallback suggestions when a search has no exact match: top-rated approved
+ * experts in the same category, or top-rated overall if that's also empty.
+ */
+export async function getClosestExperts(
+  category?: string,
+  limit = 3,
+): Promise<ExpertProfile[]> {
+  if (!isSupabaseConfigured()) return [];
+  const supabase = await createClient();
+
+  if (category) {
+    const { data } = await supabase
+      .from("expert_profiles")
+      .select("*")
+      .eq("status", "approved")
+      .contains("category_slugs", [category])
+      .order("rating_avg", { ascending: false })
+      .limit(limit);
+    if (data && data.length > 0) return data as ExpertProfile[];
+  }
+
+  const { data: fallback } = await supabase
+    .from("expert_profiles")
+    .select("*")
+    .eq("status", "approved")
+    .order("rating_avg", { ascending: false })
+    .limit(limit);
+  return (fallback as ExpertProfile[]) ?? [];
+}
+
 export interface ExpertDetail {
   expert: ExpertProfile;
   services: Service[];

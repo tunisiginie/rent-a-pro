@@ -301,3 +301,31 @@ create policy "Owner write own folder" on storage.objects
     bucket_id in ('avatars', 'expert-videos', 'problem-uploads')
     and auth.uid()::text = (storage.foldername(name))[1]
   );
+
+-- =========================================================================
+-- SEARCH REQUESTS  (demand signal: "notify me" clicks on unmatched searches)
+-- =========================================================================
+create table if not exists public.search_requests (
+  id            uuid primary key default gen_random_uuid(),
+  query         text,
+  category_slug text,
+  requested_by  uuid references auth.users (id) on delete set null,
+  notified      boolean not null default false,
+  created_at    timestamptz not null default now()
+);
+
+create index if not exists search_requests_created_at_idx on public.search_requests (created_at desc);
+
+alter table public.search_requests enable row level security;
+
+-- Anyone (including anonymous browsers) can log a demand signal.
+drop policy if exists "Search requests insertable by anyone" on public.search_requests;
+create policy "Search requests insertable by anyone" on public.search_requests
+  for insert with check (true);
+
+-- Only admins can read the list.
+drop policy if exists "Search requests readable by admin" on public.search_requests;
+create policy "Search requests readable by admin" on public.search_requests
+  for select using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
+  );

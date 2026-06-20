@@ -105,3 +105,12 @@ export interface Review {
   comment: string | null;
   created_at: string;
 }
+
+export interface SearchRequest {
+  id: string;
+  query: string | null;
+  category_slug: string | null;
+  requested_by: string | null;
+  notified: boolean;
+  created_at: string;
+}
