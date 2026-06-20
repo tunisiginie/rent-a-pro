@@ -5,14 +5,12 @@ import { requireUser, getMyExpertProfile } from "@/lib/auth";
 import { getCategories, getExpertBookings } from "@/lib/queries";
 import { signedAttachmentUrl } from "@/lib/storage";
 import { formatUsd } from "@/lib/fees";
-import { channelLabel, CHANNELS, DAY_NAMES } from "@/lib/labels";
+import { channelLabel, CHANNELS } from "@/lib/labels";
 import {
   updateExpertProfile,
   toggleAvailableNow,
   addService,
   deleteService,
-  addAvailability,
-  deleteAvailability,
   startStripeOnboarding,
 } from "@/lib/actions/expert";
 import { Button } from "@/components/ui/button";
@@ -23,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { ExpertProfileForm } from "@/components/expert-profile-form";
 import { BookingStatusBadge } from "@/components/booking-status-badge";
 import { AcceptRequestForm } from "@/components/dashboard/accept-request-form";
+import { WeeklyAvailabilityGrid } from "@/components/weekly-availability-grid";
 
 export default async function DashboardPage() {
   await requireUser();
@@ -77,8 +76,8 @@ export default async function DashboardPage() {
             <form action={startStripeOnboarding} className="space-y-3">
               <p className="flex items-center gap-2 text-sm text-muted-foreground">
                 <AlertTriangle className="size-4 text-warning" />
-                Connect Stripe to receive payments. You won’t appear in search
-                until this is done.
+                Connect Stripe to receive payments. You won&rsquo;t appear in
+                search until this is done.
               </p>
               <Button type="submit">
                 {expert.stripe_account_id ? "Finish Stripe setup" : "Connect Stripe"}
@@ -89,26 +88,35 @@ export default async function DashboardPage() {
       </Card>
 
       {/* Available now */}
-      <Card>
-        <CardContent className="flex items-center justify-between px-4">
-          <div>
-            <p className="font-medium">Available now</p>
-            <p className="text-sm text-muted-foreground">
-              Show a live badge so customers know you can respond immediately.
-            </p>
-          </div>
-          <form action={toggleAvailableNow}>
-            <input
-              type="hidden"
-              name="available_now"
-              value={(!expert.available_now).toString()}
-            />
-            <Button type="submit" variant={expert.available_now ? "default" : "outline"}>
-              {expert.available_now ? "On" : "Off"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <form action={toggleAvailableNow}>
+        <input
+          type="hidden"
+          name="available_now"
+          value={(!expert.available_now).toString()}
+        />
+        <button
+          type="submit"
+          className={`flex w-full flex-col items-center gap-2 rounded-2xl border p-8 text-center transition-colors ${
+            expert.available_now
+              ? "border-success/40 bg-success/10 hover:bg-success/15"
+              : "border-border bg-card hover:bg-secondary"
+          }`}
+        >
+          <span
+            className={`flex size-3 items-center justify-center rounded-full ${
+              expert.available_now ? "bg-success" : "bg-muted-foreground"
+            }`}
+          />
+          <span className="text-xl font-bold">
+            {expert.available_now ? "You're available now" : "Available Now"}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {expert.available_now
+              ? "Customers see a live badge. Click to turn off."
+              : "Click here to show a live badge and take instant requests."}
+          </span>
+        </button>
+      </form>
 
       {/* Incoming requests */}
       <section>
@@ -183,7 +191,7 @@ export default async function DashboardPage() {
 
       {/* Availability */}
       <section>
-        <h2 className="mb-3 text-lg font-semibold">Availability</h2>
+        <h2 className="mb-3 text-lg font-semibold">Weekly availability</h2>
         <AvailabilityEditor expertId={expert.id} />
       </section>
 
@@ -272,64 +280,16 @@ async function ServicesEditor({ expertId }: { expertId: string }) {
   );
 }
 
-/* ----- Availability editor ----- */
+/* ----- Availability editor (weekly grid) ----- */
 async function AvailabilityEditor({ expertId }: { expertId: string }) {
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
   const { data } = await supabase
     .from("availability")
-    .select("*")
+    .select("day_of_week, start_time")
     .eq("expert_id", expertId)
     .order("day_of_week");
-  const slots = data ?? [];
+  const slots = (data ?? []) as { day_of_week: number; start_time: string }[];
 
-  return (
-    <div className="space-y-3">
-      {slots.map((a) => (
-        <div
-          key={a.id}
-          className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm"
-        >
-          <span>
-            {DAY_NAMES[a.day_of_week]} · {a.start_time.slice(0, 5)}–
-            {a.end_time.slice(0, 5)}
-          </span>
-          <form action={deleteAvailability}>
-            <input type="hidden" name="availability_id" value={a.id} />
-            <Button type="submit" size="icon-sm" variant="ghost">
-              <Trash2 />
-            </Button>
-          </form>
-        </div>
-      ))}
-
-      <form action={addAvailability} className="grid grid-cols-3 gap-2 rounded-lg border border-dashed border-border p-3">
-        <div className="space-y-1">
-          <Label htmlFor="av-day">Day</Label>
-          <select
-            id="av-day"
-            name="day_of_week"
-            className="h-8 w-full rounded-lg border border-input bg-input/30 px-2 text-sm"
-          >
-            {DAY_NAMES.map((d, i) => (
-              <option key={d} value={i}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="av-start">Start</Label>
-          <Input id="av-start" name="start_time" type="time" required />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="av-end">End</Label>
-          <Input id="av-end" name="end_time" type="time" required />
-        </div>
-        <Button type="submit" className="col-span-3">
-          Add slot
-        </Button>
-      </form>
-    </div>
-  );
+  return <WeeklyAvailabilityGrid slots={slots} />;
 }

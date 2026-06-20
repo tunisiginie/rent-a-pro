@@ -132,6 +132,48 @@ export async function deleteAvailability(formData: FormData) {
 }
 
 /**
+ * Toggle a single one-hour availability cell from the weekly grid. Given a day
+ * (0-6) and an hour (0-23), deletes the matching slot if it exists, otherwise
+ * inserts start=HH:00:00 / end=(HH+1):00:00.
+ */
+export async function toggleAvailabilitySlot(formData: FormData) {
+  const expert = await getMyExpertProfile();
+  if (!expert) return;
+  const day = Number(formData.get("day_of_week"));
+  const hour = Number(formData.get("hour"));
+  if (Number.isNaN(day) || Number.isNaN(hour)) return;
+
+  const start = `${String(hour).padStart(2, "0")}:00:00`;
+  const end = `${String(hour + 1).padStart(2, "0")}:00:00`;
+  const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from("availability")
+    .select("id")
+    .eq("expert_id", expert.id)
+    .eq("day_of_week", day)
+    .eq("start_time", start)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase
+      .from("availability")
+      .delete()
+      .eq("id", (existing as { id: string }).id)
+      .eq("expert_id", expert.id);
+  } else {
+    const { error } = await supabase.from("availability").insert({
+      expert_id: expert.id,
+      day_of_week: day,
+      start_time: start,
+      end_time: end,
+    });
+    if (error) throw new Error(error.message);
+  }
+  revalidatePath("/dashboard");
+}
+
+/**
  * Create (or reuse) the expert's Stripe Express account and send them to the
  * hosted onboarding flow. On return they land back on /dashboard.
  */

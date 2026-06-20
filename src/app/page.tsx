@@ -3,6 +3,8 @@ import { getCategories, searchExperts } from "@/lib/queries";
 import { SearchBar } from "@/components/search-bar";
 import { CategoryCard } from "@/components/category-card";
 import { ExpertCard } from "@/components/expert-card";
+import { RecentsTile } from "@/components/recents-tile";
+import { TopicsTile } from "@/components/topics-tile";
 
 export default async function HomePage() {
   const [categories, featured] = await Promise.all([
@@ -11,42 +13,34 @@ export default async function HomePage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <section className="mx-auto max-w-2xl text-center">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+    <div className="mx-auto max-w-5xl px-4 py-12">
+      <section className="mx-auto max-w-3xl text-center">
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           What do you need help with?
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
           Describe your problem and get matched with a verified expert for a
           call, video chat, or quick answer.
         </p>
-        <div className="mt-6">
+        <div className="mt-7">
           <SearchBar />
         </div>
       </section>
 
-      {categories.length > 0 ? (
-        <section className="mt-12">
-          <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-            Browse by category
-          </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
-            {categories.map((c) => (
-              <CategoryCard key={c.id} category={c} />
-            ))}
-          </div>
-        </section>
-      ) : null}
+      <section className="mt-14">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <RecentsTile />
+          <TopicsTile categories={categories} />
+          {categories.map((c) => (
+            <CategoryCard key={c.id} category={c} />
+          ))}
+        </div>
+      </section>
 
-      <section className="mt-12">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-muted-foreground">
-            Top-rated pros
-          </h2>
-          <Link
-            href="/search"
-            className="text-sm text-primary hover:underline"
-          >
+      <section className="mt-14">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Top-rated pros</h2>
+          <Link href="/search" className="text-sm text-primary hover:underline">
             See all
           </Link>
         </div>
@@ -57,9 +51,9 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <p className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            No experts yet. Once pros sign up and are approved, they’ll appear
-            here.
+          <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            No experts yet. Once pros sign up and are approved, they&rsquo;ll
+            appear here.
           </p>
         )}
       </section>

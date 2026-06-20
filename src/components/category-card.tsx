@@ -10,7 +10,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Category } from "@/lib/types";
-import { Card } from "@/components/ui/card";
 
 const ICONS: Record<string, LucideIcon> = {
   Car,
@@ -25,10 +24,10 @@ export function CategoryCard({ category }: { category: Category }) {
   const Icon = (category.icon && ICONS[category.icon]) || HelpCircle;
   return (
     <Link href={`/search?category=${category.slug}`} className="block">
-      <Card className="items-center justify-center gap-2 py-6 text-center transition-colors hover:border-primary/50 hover:bg-muted/30">
-        <Icon className="size-7 text-primary" />
-        <span className="font-medium">{category.name}</span>
-      </Card>
+      <div className="group flex min-h-40 flex-col justify-between rounded-2xl bg-card p-5 transition-colors hover:bg-secondary">
+        <Icon className="size-9 text-primary" />
+        <span className="text-lg font-semibold">{category.name}</span>
+      </div>
     </Link>
   );
 }

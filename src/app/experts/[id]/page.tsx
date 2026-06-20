@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RatingStars } from "@/components/rating-stars";
 import { ServiceCard } from "@/components/service-card";
+import { IntroVideo } from "@/components/intro-video";
 
 export default async function ExpertProfilePage({
   params,
@@ -29,7 +30,7 @@ export default async function ExpertProfilePage({
           </AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <h1 className="text-2xl font-semibold">{expert.display_name}</h1>
+          <h1 className="text-3xl font-bold">{expert.display_name}</h1>
           {expert.headline ? (
             <p className="text-muted-foreground">{expert.headline}</p>
           ) : null}
@@ -50,13 +51,27 @@ export default async function ExpertProfilePage({
 
       {/* Intro video */}
       {expert.intro_video_url ? (
-        <div className="mt-6 overflow-hidden rounded-xl border border-border bg-black">
-          <video src={expert.intro_video_url} controls className="aspect-video w-full" />
+        <div className="mt-6">
+          <IntroVideo src={expert.intro_video_url} name={expert.display_name} />
         </div>
       ) : null}
 
+      {/* Services */}
+      <h2 className="mt-8 mb-3 text-lg font-semibold">Services</h2>
+      {services.length > 0 ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {services.map((s) => (
+            <ServiceCard key={s.id} service={s} expertId={expert.id} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          This pro hasn&rsquo;t listed any services yet.
+        </p>
+      )}
+
       {/* Bio + specialties */}
-      {expert.bio ? <p className="mt-6 text-sm leading-relaxed">{expert.bio}</p> : null}
+      {expert.bio ? <p className="mt-8 text-sm leading-relaxed">{expert.bio}</p> : null}
       {expert.specialties.length > 0 ? (
         <div className="mt-4">
           <h2 className="mb-2 text-sm font-medium text-muted-foreground">
@@ -72,20 +87,6 @@ export default async function ExpertProfilePage({
         </div>
       ) : null}
 
-      {/* Services */}
-      <h2 className="mt-8 mb-3 text-lg font-semibold">Services</h2>
-      {services.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {services.map((s) => (
-            <ServiceCard key={s.id} service={s} expertId={expert.id} />
-          ))}
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          This pro hasn’t listed any services yet.
-        </p>
-      )}
-
       {/* Availability */}
       {availability.length > 0 ? (
         <Card className="mt-8">
@@ -99,7 +100,7 @@ export default async function ExpertProfilePage({
               <div key={a.id} className="flex justify-between">
                 <span>{DAY_NAMES[a.day_of_week]}</span>
                 <span className="text-muted-foreground">
-                  {a.start_time.slice(0, 5)} – {a.end_time.slice(0, 5)}
+                  {a.start_time.slice(0, 5)} - {a.end_time.slice(0, 5)}
                 </span>
               </div>
             ))}
@@ -119,7 +120,7 @@ export default async function ExpertProfilePage({
                     {r.rating ? <RatingStars rating={r.rating} /> : null}
                     {r.did_answer !== null ? (
                       <Badge variant="outline" className="text-xs">
-                        {r.did_answer ? "Answered" : "Didn’t answer"}
+                        {r.did_answer ? "Answered" : "Didn't answer"}
                       </Badge>
                     ) : null}
                   </div>

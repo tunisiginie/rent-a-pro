@@ -33,21 +33,27 @@ export async function getCategories(): Promise<Category[]> {
 export interface ExpertSearchParams {
   q?: string;
   category?: string;
+  availableNow?: boolean;
+  sort?: "rating" | "reviews";
 }
 
 export async function searchExperts({
   q,
   category,
+  availableNow,
+  sort = "rating",
 }: ExpertSearchParams = {}): Promise<ExpertProfile[]> {
   if (!isSupabaseConfigured()) return [];
   const supabase = await createClient();
+  const orderColumn = sort === "reviews" ? "rating_count" : "rating_avg";
   let query = supabase
     .from("expert_profiles")
     .select("*")
     .eq("status", "approved")
-    .order("rating_avg", { ascending: false });
+    .order(orderColumn, { ascending: false });
 
   if (category) query = query.contains("category_slugs", [category]);
+  if (availableNow) query = query.eq("available_now", true);
   if (q && q.trim()) {
     const term = `%${q.trim()}%`;
     // Match against name, headline, or any specialty.

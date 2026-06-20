@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { pushRecentSearch } from "@/lib/recents";
 
 export function SearchBar({
   defaultValue = "",
@@ -19,6 +20,7 @@ export function SearchBar({
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const q = value.trim();
+    if (q) pushRecentSearch(q);
     router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
   }
 

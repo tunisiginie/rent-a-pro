@@ -1,21 +1,32 @@
-import Link from "next/link";
 import { SearchX } from "lucide-react";
 import { getCategories, getClosestExperts, searchExperts } from "@/lib/queries";
 import { sendDemandEmail } from "@/lib/email";
 import { SearchBar } from "@/components/search-bar";
 import { ExpertCard } from "@/components/expert-card";
+import { FeaturedExpertCard } from "@/components/featured-expert-card";
+import { SearchFilters } from "@/components/search-filters";
+import { RecordCategory } from "@/components/record-category";
 import { NotifyMeButton } from "@/components/notify-me-button";
 import { RequestSpecificExpert } from "@/components/request-specific-expert";
-import { Badge } from "@/components/ui/badge";
 
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+    available?: string;
+    sort?: string;
+  }>;
 }) {
-  const { q, category } = await searchParams;
+  const { q, category, available, sort } = await searchParams;
   const [experts, categories] = await Promise.all([
-    searchExperts({ q, category }),
+    searchExperts({
+      q,
+      category,
+      availableNow: available === "1",
+      sort: sort === "reviews" ? "reviews" : "rating",
+    }),
     getCategories(),
   ]);
   const activeCategory = categories.find((c) => c.slug === category);
@@ -31,26 +42,15 @@ export default async function SearchPage({
     });
   }
 
+  const [first, ...rest] = experts;
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
+      {category ? <RecordCategory slug={category} /> : null}
       <SearchBar defaultValue={q ?? ""} />
 
-      <div className="mt-5 flex flex-wrap items-center gap-2">
-        <Link href="/search">
-          <Badge variant={category ? "outline" : "default"} className="rounded-full px-3 py-1">
-            All
-          </Badge>
-        </Link>
-        {categories.map((c) => (
-          <Link key={c.id} href={`/search?category=${c.slug}`}>
-            <Badge
-              variant={c.slug === category ? "default" : "outline"}
-              className="rounded-full px-3 py-1"
-            >
-              {c.name}
-            </Badge>
-          </Link>
-        ))}
+      <div className="mt-5">
+        <SearchFilters categories={categories} />
       </div>
 
       <p className="mt-6 mb-4 text-sm text-muted-foreground">
@@ -60,10 +60,20 @@ export default async function SearchPage({
       </p>
 
       {experts.length > 0 ? (
-        <div className="space-y-2">
-          {experts.map((e) => (
-            <ExpertCard key={e.id} expert={e} />
-          ))}
+        <div className="space-y-6">
+          <FeaturedExpertCard expert={first} />
+          {rest.length > 0 ? (
+            <div>
+              <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+                Other certified pros
+              </h2>
+              <div className="space-y-2">
+                {rest.map((e) => (
+                  <ExpertCard key={e.id} expert={e} />
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="space-y-8">
@@ -77,7 +87,7 @@ export default async function SearchPage({
                 No pros found{q ? ` for "${q}"` : activeCategory ? ` in ${activeCategory.name}` : ""}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                We don&rsquo;t have a match yet — but we&rsquo;re growing fast.
+                We don&rsquo;t have a match yet, but we&rsquo;re growing fast.
               </p>
             </div>
           </div>
