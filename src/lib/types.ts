@@ -112,5 +112,7 @@ export interface SearchRequest {
   category_slug: string | null;
   requested_by: string | null;
   notified: boolean;
+  is_specific_request: boolean;
+  specific_description: string | null;
   created_at: string;
 }

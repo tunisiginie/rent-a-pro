@@ -6,24 +6,51 @@
 interface DemandEmailParams {
   query: string | null;
   categorySlug: string | null;
+  isSpecific?: boolean;
+  specificDescription?: string | null;
+  autoTriggered?: boolean;
 }
 
-export async function sendDemandEmail({ query, categorySlug }: DemandEmailParams) {
+export async function sendDemandEmail({
+  query,
+  categorySlug,
+  isSpecific = false,
+  specificDescription = null,
+  autoTriggered = false,
+}: DemandEmailParams) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return;
 
   const to = process.env.DEMAND_NOTIFICATION_EMAIL || "mbyazidi@gmail.com";
-  const subject = query
-    ? `Unmet search demand: "${query}"`
-    : `Unmet search demand in category "${categorySlug}"`;
-  const text = [
-    "Someone searched Rent a Pro and we didn't have a matching pro.",
-    query ? `Search: "${query}"` : null,
-    categorySlug ? `Category: ${categorySlug}` : null,
-    "They asked to be notified when one's available.",
-  ]
-    .filter(Boolean)
-    .join("\n");
+
+  let subject: string;
+  let text: string;
+
+  if (isSpecific && specificDescription) {
+    subject = `Specific expert requested: "${specificDescription.slice(0, 60)}"`;
+    text = [
+      "A visitor requested a specific expert that Rent a Pro doesn't have yet.",
+      `Description: "${specificDescription}"`,
+      query ? `Original search: "${query}"` : null,
+      categorySlug ? `Category: ${categorySlug}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+  } else {
+    subject = query
+      ? `${autoTriggered ? "[Auto] " : ""}Unmet search demand: "${query}"`
+      : `${autoTriggered ? "[Auto] " : ""}Unmet search demand in category "${categorySlug}"`;
+    text = [
+      autoTriggered
+        ? "A search on Rent a Pro returned zero results (auto-alert)."
+        : "Someone searched Rent a Pro and we didn't have a matching pro.",
+      query ? `Search: "${query}"` : null,
+      categorySlug ? `Category: ${categorySlug}` : null,
+      autoTriggered ? null : "They asked to be notified when one's available.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
 
   await fetch("https://api.resend.com/emails", {
     method: "POST",

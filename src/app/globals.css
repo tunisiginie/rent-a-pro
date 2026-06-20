@@ -42,44 +42,44 @@
 }
 
 /*
-  Oaklandish / FinTrackr dark design system.
-  Palette carried over from the original vanilla app (legacy/styles.css).
+  Rent a Pro dark design system.
+  Dark background + electric sky-blue accent (Robinhood-style).
   Dark mode is the default and only theme.
 */
 :root,
 .dark {
-  --background: #0a0a0f;
-  --foreground: #f8fafc;
-  --card: #14141c;
-  --card-foreground: #f8fafc;
-  --popover: #14141c;
-  --popover-foreground: #f8fafc;
-  --primary: #6366f1; /* indigo */
-  --primary-foreground: #ffffff;
-  --secondary: #1e1e2d;
-  --secondary-foreground: #f8fafc;
-  --muted: #1a1a26;
-  --muted-foreground: #94a3b8;
-  --accent: #232333;
-  --accent-foreground: #f8fafc;
+  --background: #080810;
+  --foreground: #f0f6ff;
+  --card: #0f1018;
+  --card-foreground: #f0f6ff;
+  --popover: #0f1018;
+  --popover-foreground: #f0f6ff;
+  --primary: #38bdf8; /* sky-400 electric blue */
+  --primary-foreground: #080810;
+  --secondary: #161824;
+  --secondary-foreground: #f0f6ff;
+  --muted: #131520;
+  --muted-foreground: #7b8db0;
+  --accent: #1a1d2e;
+  --accent-foreground: #f0f6ff;
   --destructive: #ef4444;
   --success: #10b981;
   --warning: #f59e0b;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.15);
-  --ring: #6366f1;
+  --border: rgba(56, 189, 248, 0.12);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #38bdf8;
 
-  /* Vibrant chart sequence (allocation donut + accents) */
-  --chart-1: #6366f1; /* indigo  */
-  --chart-2: #8b5cf6; /* violet  */
-  --chart-3: #10b981; /* emerald */
-  --chart-4: #f59e0b; /* amber   */
-  --chart-5: #06b6d4; /* cyan    */
+  /* Chart palette */
+  --chart-1: #38bdf8; /* sky      */
+  --chart-2: #0ea5e9; /* sky-500  */
+  --chart-3: #10b981; /* emerald  */
+  --chart-4: #f59e0b; /* amber    */
+  --chart-5: #818cf8; /* indigo   */
 
-  --radius: 0.875rem;
+  --radius: 0.75rem;
 
   /* Brand */
-  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
   --glass-blur: blur(12px);
 }
 

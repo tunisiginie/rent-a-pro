@@ -306,13 +306,20 @@ create policy "Owner write own folder" on storage.objects
 -- SEARCH REQUESTS  (demand signal: "notify me" clicks on unmatched searches)
 -- =========================================================================
 create table if not exists public.search_requests (
-  id            uuid primary key default gen_random_uuid(),
-  query         text,
-  category_slug text,
-  requested_by  uuid references auth.users (id) on delete set null,
-  notified      boolean not null default false,
-  created_at    timestamptz not null default now()
+  id                   uuid primary key default gen_random_uuid(),
+  query                text,
+  category_slug        text,
+  requested_by         uuid references auth.users (id) on delete set null,
+  notified             boolean not null default false,
+  is_specific_request  boolean not null default false,
+  specific_description text,
+  created_at           timestamptz not null default now()
 );
+
+-- Idempotent column additions for existing deployments.
+alter table public.search_requests
+  add column if not exists is_specific_request boolean not null default false,
+  add column if not exists specific_description text;
 
 create index if not exists search_requests_created_at_idx on public.search_requests (created_at desc);
 
