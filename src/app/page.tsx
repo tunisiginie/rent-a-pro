@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getCategories, searchExperts } from "@/lib/queries";
-import { SearchBar } from "@/components/search-bar";
+import { ConciergeHero } from "@/components/concierge-hero";
 import { CategoryCard } from "@/components/category-card";
 import { ExpertCard } from "@/components/expert-card";
 import { RecentsTile } from "@/components/recents-tile";
@@ -14,16 +14,16 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
-      <section className="mx-auto max-w-3xl text-center">
+      <section className="mx-auto max-w-2xl text-center">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          What do you need help with?
+          What do you need?
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-          Describe your problem and get matched with a verified expert for a
-          call, video chat, or quick answer.
+          Tap the orb and tell us, or type it &mdash; we&rsquo;ll match you with a
+          verified expert for a call, video chat, or quick answer.
         </p>
-        <div className="mt-7">
-          <SearchBar />
+        <div className="mt-8">
+          <ConciergeHero />
         </div>
       </section>
 

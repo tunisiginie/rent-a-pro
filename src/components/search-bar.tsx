@@ -6,13 +6,17 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { pushRecentSearch } from "@/lib/recents";
+import { logExperimentEvent } from "@/lib/actions/experiment";
 
 export function SearchBar({
   defaultValue = "",
   placeholder = "Describe your problem, e.g. BMW won't start",
+  variant,
 }: {
   defaultValue?: string;
   placeholder?: string;
+  /** Copy A/B variant key; logs a conversion when a search is submitted. */
+  variant?: string;
 }) {
   const router = useRouter();
   const [value, setValue] = useState(defaultValue);
@@ -20,7 +24,10 @@ export function SearchBar({
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const q = value.trim();
-    if (q) pushRecentSearch(q);
+    if (q) {
+      pushRecentSearch(q);
+      if (variant) logExperimentEvent(variant, "convert").catch(() => {});
+    }
     router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
   }
 

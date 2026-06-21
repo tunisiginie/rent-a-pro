@@ -119,4 +119,60 @@
   .text-danger {
     color: var(--destructive);
   }
+
+  /* Alexa-style voice orb: layered gradient blobs in constant motion. */
+  @keyframes orb-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes orb-drift {
+    0%, 100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    33% {
+      transform: translate3d(8%, -6%, 0) scale(1.08);
+    }
+    66% {
+      transform: translate3d(-6%, 6%, 0) scale(0.94);
+    }
+  }
+  @keyframes orb-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scale(1.06);
+      opacity: 1;
+    }
+  }
+  @keyframes orb-ring {
+    0% {
+      transform: scale(0.85);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+  .orb-spin {
+    animation: orb-spin 14s linear infinite;
+  }
+  .orb-drift {
+    animation: orb-drift 7s ease-in-out infinite;
+  }
+  .orb-drift-slow {
+    animation: orb-drift 11s ease-in-out infinite reverse;
+  }
+  .orb-pulse {
+    animation: orb-pulse 2.6s ease-in-out infinite;
+  }
+  .orb-pulse-fast {
+    animation: orb-pulse 1s ease-in-out infinite;
+  }
+  .orb-ring {
+    animation: orb-ring 1.8s ease-out infinite;
+  }
 }

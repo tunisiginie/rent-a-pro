@@ -336,3 +336,31 @@ create policy "Search requests readable by admin" on public.search_requests
   for select using (
     exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
   );
+
+-- =========================================================================
+-- EXPERIMENT EVENTS  (A/B test impressions + conversions for home copy, etc.)
+-- =========================================================================
+create table if not exists public.experiment_events (
+  id         uuid primary key default gen_random_uuid(),
+  experiment text not null,
+  variant    text not null,
+  event      text not null,           -- 'impression' | 'convert'
+  created_at timestamptz not null default now()
+);
+
+create index if not exists experiment_events_lookup_idx
+  on public.experiment_events (experiment, variant, event);
+
+alter table public.experiment_events enable row level security;
+
+-- Anyone (including anonymous browsers) can log an experiment event.
+drop policy if exists "Experiment events insertable by anyone" on public.experiment_events;
+create policy "Experiment events insertable by anyone" on public.experiment_events
+  for insert with check (true);
+
+-- Only admins can read the results.
+drop policy if exists "Experiment events readable by admin" on public.experiment_events;
+create policy "Experiment events readable by admin" on public.experiment_events
+  for select using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
+  );
