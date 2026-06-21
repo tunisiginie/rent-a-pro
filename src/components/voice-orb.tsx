@@ -215,20 +215,20 @@ export function VoiceOrb({ variant }: { variant: string }) {
         type="button"
         onClick={active ? close : activate}
         aria-label={active ? "Stop voice assistant" : "Start voice assistant"}
-        className="group relative flex size-28 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="group relative flex size-64 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:size-72"
       >
         {energized ? (
           <>
-            <span className="absolute size-24 rounded-full bg-primary/30 orb-ring" />
+            <span className="absolute size-56 rounded-full bg-primary/30 orb-ring sm:size-64" />
             <span
-              className="absolute size-24 rounded-full bg-primary/20 orb-ring"
+              className="absolute size-56 rounded-full bg-primary/20 orb-ring sm:size-64"
               style={{ animationDelay: "0.6s" }}
             />
           </>
         ) : null}
 
         <span
-          className={`relative size-24 overflow-hidden rounded-full shadow-xl shadow-primary/30 transition-transform ${
+          className={`relative size-56 overflow-hidden rounded-full shadow-xl shadow-primary/30 transition-transform sm:size-64 ${
             energized ? "orb-pulse-fast" : "orb-pulse"
           }`}
         >
@@ -240,16 +240,12 @@ export function VoiceOrb({ variant }: { variant: string }) {
           />
           <span className="absolute inset-0 orb-spin bg-[conic-gradient(from_0deg,transparent,rgba(255,255,255,0.35),transparent_40%)]" />
           <span className="absolute inset-0 flex items-center justify-center text-primary-foreground">
-            <Mic className={`size-7 ${thinking ? "animate-pulse" : ""}`} />
+            <Mic className={`size-12 ${thinking ? "animate-pulse" : ""}`} />
           </span>
         </span>
       </button>
 
-      {!active ? (
-        <p className="text-sm text-muted-foreground">
-          Tap to talk &mdash; tell me what you need
-        </p>
-      ) : (
+      {active ? (
         <div className="flex w-full max-w-md flex-col items-center gap-3">
           <p className="min-h-5 text-center text-sm">
             {thinking ? (
@@ -290,7 +286,7 @@ export function VoiceOrb({ variant }: { variant: string }) {
             <X className="size-3.5" /> Close
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

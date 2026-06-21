@@ -15,13 +15,8 @@ export function ConciergeHero() {
   }, [variant.key]);
 
   return (
-    <div className="flex flex-col items-center gap-7">
+    <div className="flex flex-col items-center gap-8">
       <VoiceOrb variant={variant.key} />
-      <div className="flex w-full items-center gap-3 text-xs text-muted-foreground">
-        <span className="h-px flex-1 bg-border" />
-        or type it
-        <span className="h-px flex-1 bg-border" />
-      </div>
       <div className="w-full">
         <SearchBar placeholder={variant.placeholder} variant={variant.key} />
       </div>

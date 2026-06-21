@@ -16,13 +16,9 @@ export default async function HomePage() {
     <div className="mx-auto max-w-5xl px-4 py-12">
       <section className="mx-auto max-w-2xl text-center">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          What do you need?
+          How can I help?
         </h1>
-        <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-          Tap the orb and tell us, or type it &mdash; we&rsquo;ll match you with a
-          verified expert for a call, video chat, or quick answer.
-        </p>
-        <div className="mt-8">
+        <div className="mt-10">
           <ConciergeHero />
         </div>
       </section>
