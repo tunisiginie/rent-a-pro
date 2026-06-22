@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Mic, X, Send } from "lucide-react";
 import { pushRecentSearch } from "@/lib/recents";
 import { logExperimentEvent } from "@/lib/actions/experiment";
+import { VoiceMeter } from "@/components/voice-meter";
 
 // Minimal Web Speech API typings (not in the standard DOM lib).
 interface SpeechRecognitionResultLike {
@@ -228,18 +229,24 @@ export function VoiceOrb({ variant }: { variant: string }) {
         ) : null}
 
         <span
-          className={`relative size-56 overflow-hidden rounded-full shadow-2xl shadow-primary/40 transition-transform sm:size-64 ${
+          className={`relative size-56 transition-transform sm:size-64 ${
             energized ? "orb-alive-fast" : "orb-alive"
           }`}
         >
-          {/* The cosmic-sphere image, scaled up so the source's white margin clips outside the circle */}
-          <span
-            className={`absolute inset-0 scale-105 bg-[url('/orb.png')] bg-cover bg-center transition-opacity ${
+          {/* Transparent cosmic-sphere floating freely; drop-shadow hugs the sphere's shape (no box/circle) */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/orb.png"
+            alt=""
+            className={`size-full object-contain transition-opacity ${
               thinking ? "opacity-70" : "opacity-100"
             }`}
+            style={{
+              filter: `drop-shadow(0 0 ${energized ? 34 : 24}px rgba(56,189,248,${
+                energized ? 0.6 : 0.42
+              }))`,
+            }}
           />
-          {/* Vignette so the circular rim blends into the dark background */}
-          <span className="absolute inset-0 rounded-full shadow-[inset_0_0_40px_rgba(8,8,16,0.45)]" />
           {/* "Tap to talk" cue — hidden until hover so the orb stays clean at rest */}
           <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 transition-opacity group-hover:opacity-80">
             <Mic className={`size-10 drop-shadow ${thinking ? "animate-pulse" : ""}`} />
@@ -249,6 +256,7 @@ export function VoiceOrb({ variant }: { variant: string }) {
 
       {active ? (
         <div className="flex w-full max-w-md flex-col items-center gap-3">
+          {listening ? <VoiceMeter active={listening} /> : null}
           <p className="min-h-5 text-center text-sm">
             {thinking ? (
               <span className="text-muted-foreground">Thinking&hellip;</span>
