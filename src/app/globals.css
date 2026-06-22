@@ -157,6 +157,15 @@
       opacity: 0;
     }
   }
+  /* Subtle "alive" drift for the image orb: gentle float + breathe + tiny sway. */
+  @keyframes orb-alive {
+    0%, 100% {
+      transform: translateY(0) scale(1) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-5px) scale(1.025) rotate(1.2deg);
+    }
+  }
   .orb-spin {
     animation: orb-spin 14s linear infinite;
   }
@@ -174,5 +183,11 @@
   }
   .orb-ring {
     animation: orb-ring 1.8s ease-out infinite;
+  }
+  .orb-alive {
+    animation: orb-alive 7s ease-in-out infinite;
+  }
+  .orb-alive-fast {
+    animation: orb-alive 3.5s ease-in-out infinite;
   }
 }

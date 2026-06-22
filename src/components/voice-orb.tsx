@@ -228,19 +228,21 @@ export function VoiceOrb({ variant }: { variant: string }) {
         ) : null}
 
         <span
-          className={`relative size-56 overflow-hidden rounded-full shadow-xl shadow-primary/30 transition-transform sm:size-64 ${
-            energized ? "orb-pulse-fast" : "orb-pulse"
+          className={`relative size-56 overflow-hidden rounded-full shadow-2xl shadow-primary/40 transition-transform sm:size-64 ${
+            energized ? "orb-alive-fast" : "orb-alive"
           }`}
         >
-          <span className="absolute inset-0 bg-gradient-to-br from-primary via-chart-2 to-primary" />
+          {/* The cosmic-sphere image, scaled up so the source's white margin clips outside the circle */}
           <span
-            className={`absolute -inset-2 rounded-full bg-[radial-gradient(circle_at_30%_30%,var(--primary),transparent_60%)] blur-md ${
-              energized ? "orb-drift" : "orb-drift-slow"
+            className={`absolute inset-0 scale-105 bg-[url('/orb.png')] bg-cover bg-center transition-opacity ${
+              thinking ? "opacity-70" : "opacity-100"
             }`}
           />
-          <span className="absolute inset-0 orb-spin bg-[conic-gradient(from_0deg,transparent,rgba(255,255,255,0.35),transparent_40%)]" />
-          <span className="absolute inset-0 flex items-center justify-center text-primary-foreground">
-            <Mic className={`size-12 ${thinking ? "animate-pulse" : ""}`} />
+          {/* Vignette so the circular rim blends into the dark background */}
+          <span className="absolute inset-0 rounded-full shadow-[inset_0_0_40px_rgba(8,8,16,0.45)]" />
+          {/* "Tap to talk" cue — hidden until hover so the orb stays clean at rest */}
+          <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 transition-opacity group-hover:opacity-80">
+            <Mic className={`size-10 drop-shadow ${thinking ? "animate-pulse" : ""}`} />
           </span>
         </span>
       </button>
