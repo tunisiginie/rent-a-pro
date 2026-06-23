@@ -190,16 +190,16 @@
   .orb-alive-fast {
     animation: orb-alive 3.5s ease-in-out infinite;
   }
-  /* Fallback bounce for the voice meter when no live mic level is available. */
-  @keyframes meter-pulse {
+  /* Near-flat idle line for the voice meter when no live mic level is available. */
+  @keyframes meter-idle {
     0%, 100% {
-      height: 22%;
+      height: 3px;
     }
     50% {
-      height: 78%;
+      height: 7px;
     }
   }
-  .meter-pulse {
-    animation: meter-pulse 0.9s ease-in-out infinite;
+  .meter-idle {
+    animation: meter-idle 1.4s ease-in-out infinite;
   }
 }
