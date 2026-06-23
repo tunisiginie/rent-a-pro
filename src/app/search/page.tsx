@@ -1,9 +1,15 @@
 import { SearchX } from "lucide-react";
-import { getCategories, getClosestExperts, searchExperts } from "@/lib/queries";
+import {
+  getCategories,
+  getClosestExperts,
+  searchDirectoryExperts,
+  searchExperts,
+} from "@/lib/queries";
 import { sendDemandEmail } from "@/lib/email";
 import { SearchBar } from "@/components/search-bar";
 import { ExpertCard } from "@/components/expert-card";
 import { FeaturedExpertCard } from "@/components/featured-expert-card";
+import { DirectoryCard } from "@/components/directory-card";
 import { SearchFilters } from "@/components/search-filters";
 import { RecordCategory } from "@/components/record-category";
 import { NotifyMeButton } from "@/components/notify-me-button";
@@ -20,21 +26,23 @@ export default async function SearchPage({
   }>;
 }) {
   const { q, category, available, sort } = await searchParams;
-  const [experts, categories] = await Promise.all([
+  const [experts, directory, categories] = await Promise.all([
     searchExperts({
       q,
       category,
       availableNow: available === "1",
       sort: sort === "reviews" ? "reviews" : "rating",
     }),
+    searchDirectoryExperts({ q, category }),
     getCategories(),
   ]);
   const activeCategory = categories.find((c) => c.slug === category);
-  const closest =
-    experts.length === 0 ? await getClosestExperts(category) : [];
+  const hasClaimed = experts.length > 0;
+  const hasAny = hasClaimed || directory.length > 0;
+  const closest = hasAny ? [] : await getClosestExperts(category);
 
-  // Auto-alert the owner on every empty search (no-ops without RESEND_API_KEY).
-  if (experts.length === 0 && (q || category)) {
+  // Auto-alert the owner only when we truly have nothing (no-ops without RESEND_API_KEY).
+  if (!hasAny && (q || category)) {
     await sendDemandEmail({
       query: q ?? null,
       categorySlug: category ?? null,
@@ -43,6 +51,7 @@ export default async function SearchPage({
   }
 
   const [first, ...rest] = experts;
+  const total = experts.length + directory.length;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -54,22 +63,42 @@ export default async function SearchPage({
       </div>
 
       <p className="mt-6 mb-4 text-sm text-muted-foreground">
-        {experts.length} {experts.length === 1 ? "pro" : "pros"}
+        {total} {total === 1 ? "pro" : "pros"}
         {q ? ` for "${q}"` : ""}
         {activeCategory ? ` in ${activeCategory.name}` : ""}
       </p>
 
-      {experts.length > 0 ? (
+      {hasAny ? (
         <div className="space-y-6">
-          <FeaturedExpertCard expert={first} />
-          {rest.length > 0 ? (
+          {hasClaimed ? (
+            <>
+              <FeaturedExpertCard expert={first} />
+              {rest.length > 0 ? (
+                <div>
+                  <h2 className="mb-3 text-sm font-medium text-muted-foreground">
+                    Other certified pros
+                  </h2>
+                  <div className="space-y-2">
+                    {rest.map((e) => (
+                      <ExpertCard key={e.id} expert={e} />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </>
+          ) : null}
+
+          {directory.length > 0 ? (
             <div>
-              <h2 className="mb-3 text-sm font-medium text-muted-foreground">
-                Other certified pros
+              <h2 className="mb-1 text-sm font-medium text-muted-foreground">
+                {hasClaimed ? "More pros we found" : "Pros we found for you"}
               </h2>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Not on Rent a Pro yet &mdash; tap any to have us connect you.
+              </p>
               <div className="space-y-2">
-                {rest.map((e) => (
-                  <ExpertCard key={e.id} expert={e} />
+                {directory.map((d) => (
+                  <DirectoryCard key={d.id} expert={d} />
                 ))}
               </div>
             </div>

@@ -116,3 +116,40 @@ export interface SearchRequest {
   specific_description: string | null;
   created_at: string;
 }
+
+/** Auto-compiled "unclaimed" listing in the directory layer. */
+export interface DirectoryExpert {
+  id: string;
+  display_name: string;
+  headline: string | null;
+  blurb: string | null;
+  category_slugs: string[];
+  specialties: string[];
+  location: string | null;
+  website_url: string | null;
+  booking_url: string | null;
+  public_email: string | null;
+  public_phone: string | null;
+  photo_url: string | null;
+  source: string;
+  source_url: string;
+  fetched_at: string;
+  status: "listed" | "hidden" | "removed";
+  claimed: boolean;
+  claimed_expert_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type LeadStatus = "new" | "contacted" | "brokered" | "won" | "lost";
+
+export interface Lead {
+  id: string;
+  directory_expert_id: string | null;
+  expert_id: string | null;
+  requester_id: string | null;
+  requester_contact: string | null;
+  need_text: string | null;
+  status: LeadStatus;
+  created_at: string;
+}

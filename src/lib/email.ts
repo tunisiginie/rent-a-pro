@@ -66,3 +66,54 @@ export async function sendDemandEmail({
     }),
   });
 }
+
+interface LeadEmailParams {
+  expertName: string;
+  needText: string | null;
+  requesterContact: string | null;
+  expertContact?: string | null; // public phone/email/link, for the operator to reach out
+  sourceUrl?: string | null;
+}
+
+/**
+ * Pings the operator when a customer wants to book an unclaimed (directory)
+ * expert, so the operator can broker the deal ("I have a paying client") and
+ * invite the expert to claim their profile. No-ops without RESEND_API_KEY.
+ */
+export async function sendLeadEmail({
+  expertName,
+  needText,
+  requesterContact,
+  expertContact = null,
+  sourceUrl = null,
+}: LeadEmailParams) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return;
+
+  const to = process.env.DEMAND_NOTIFICATION_EMAIL || "mbyazidi@gmail.com";
+  const text = [
+    `A customer is ready to book "${expertName}" (an unclaimed listing).`,
+    needText ? `What they need: ${needText}` : null,
+    requesterContact ? `Reach the customer at: ${requesterContact}` : null,
+    expertContact ? `Expert's public contact: ${expertContact}` : null,
+    sourceUrl ? `Listing source: ${sourceUrl}` : null,
+    "",
+    "Reach out to the expert, broker the session, and invite them to claim their profile.",
+  ]
+    .filter((l) => l !== null)
+    .join("\n");
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: "Rent a Pro <onboarding@resend.dev>",
+      to,
+      subject: `New booking lead: ${expertName}`,
+      text,
+    }),
+  });
+}

@@ -1,4 +1,4 @@
--- Rent a Pro — Supabase schema
+-- Rent a Pro - Supabase schema
 -- Run in the Supabase SQL Editor (Project → SQL Editor → New query).
 -- Idempotent: safe to re-run.
 
@@ -46,7 +46,7 @@ end;
 $$;
 
 -- =========================================================================
--- CATEGORIES  (seeded browse buckets — Cars, Fireplace, …)
+-- CATEGORIES  (seeded browse buckets - Cars, Fireplace, ...)
 -- =========================================================================
 create table if not exists public.categories (
   id         uuid primary key default gen_random_uuid(),
@@ -63,12 +63,16 @@ create policy "Categories are public-read" on public.categories
   for select using (true);
 
 insert into public.categories (slug, name, icon, sort_order) values
-  ('cars',        'Cars',          'Car',        1),
-  ('fireplace',   'Fireplace',     'Flame',      2),
-  ('electronics', 'Electronics',   'Cpu',        3),
-  ('home',        'Home Repair',   'Hammer',     4),
-  ('plumbing',    'Plumbing',      'Wrench',     5),
-  ('tech',        'Tech Support',  'Laptop',     6)
+  ('tutoring',        'Tutoring',         'GraduationCap', 1),
+  ('career-coaching', 'Career Coaching',  'Briefcase',     2),
+  ('fitness',         'Fitness',          'Dumbbell',      3),
+  ('nutrition',       'Nutrition',        'Salad',         4),
+  ('cars',        'Cars',          'Car',        5),
+  ('fireplace',   'Fireplace',     'Flame',      6),
+  ('electronics', 'Electronics',   'Cpu',        7),
+  ('home',        'Home Repair',   'Hammer',     8),
+  ('plumbing',    'Plumbing',      'Wrench',     9),
+  ('tech',        'Tech Support',  'Laptop',     10)
 on conflict (slug) do nothing;
 
 -- =========================================================================
@@ -361,6 +365,78 @@ create policy "Experiment events insertable by anyone" on public.experiment_even
 -- Only admins can read the results.
 drop policy if exists "Experiment events readable by admin" on public.experiment_events;
 create policy "Experiment events readable by admin" on public.experiment_events
+  for select using (
+    exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
+  );
+
+-- =========================================================================
+-- DIRECTORY EXPERTS  (auto-compiled "unclaimed" listings - directory layer)
+-- Writes happen via the service-role ingestion pipeline (bypasses RLS).
+-- Public can only read listings that are still 'listed'.
+-- =========================================================================
+create table if not exists public.directory_experts (
+  id                uuid primary key default gen_random_uuid(),
+  display_name      text not null,
+  headline          text,
+  blurb             text,                          -- LLM-written, original (never copied)
+  category_slugs    text[] not null default '{}',
+  specialties       text[] not null default '{}',
+  location          text,
+  website_url       text,
+  booking_url       text,
+  public_email      text,
+  public_phone      text,
+  photo_url         text,                          -- link only; do not re-host copyrighted images
+  source            text not null,                 -- e.g. 'google_places', 'icf_directory'
+  source_url        text not null,                 -- provenance: where this came from
+  fetched_at        timestamptz not null default now(),
+  status            text not null default 'listed', -- listed | hidden | removed
+  claimed           boolean not null default false,
+  claimed_expert_id uuid references public.expert_profiles (id) on delete set null,
+  created_at        timestamptz not null default now(),
+  updated_at        timestamptz not null default now()
+);
+
+create index if not exists directory_experts_status_idx on public.directory_experts (status);
+create index if not exists directory_experts_categories_idx on public.directory_experts using gin (category_slugs);
+
+drop trigger if exists directory_experts_touch on public.directory_experts;
+create trigger directory_experts_touch before update on public.directory_experts
+  for each row execute function public.touch_updated_at();
+
+alter table public.directory_experts enable row level security;
+
+-- Public can read only live listings.
+drop policy if exists "Directory experts public read" on public.directory_experts;
+create policy "Directory experts public read" on public.directory_experts
+  for select using (status = 'listed');
+
+-- =========================================================================
+-- LEADS  (concierge-broker pipeline: a customer wants a specific pro)
+-- =========================================================================
+create table if not exists public.leads (
+  id                  uuid primary key default gen_random_uuid(),
+  directory_expert_id uuid references public.directory_experts (id) on delete set null,
+  expert_id           uuid references public.expert_profiles (id) on delete set null,
+  requester_id        uuid references auth.users (id) on delete set null,
+  requester_contact   text,
+  need_text           text,
+  status              text not null default 'new', -- new | contacted | brokered | won | lost
+  created_at          timestamptz not null default now()
+);
+
+create index if not exists leads_status_idx on public.leads (status, created_at desc);
+
+alter table public.leads enable row level security;
+
+-- Anyone (including anonymous browsers) can submit a lead.
+drop policy if exists "Leads insertable by anyone" on public.leads;
+create policy "Leads insertable by anyone" on public.leads
+  for insert with check (true);
+
+-- Only admins can read the pipeline.
+drop policy if exists "Leads readable by admin" on public.leads;
+create policy "Leads readable by admin" on public.leads
   for select using (
     exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin)
   );

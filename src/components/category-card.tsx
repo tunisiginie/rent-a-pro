@@ -6,6 +6,10 @@ import {
   Hammer,
   Wrench,
   Laptop,
+  GraduationCap,
+  Briefcase,
+  Dumbbell,
+  Salad,
   HelpCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -18,6 +22,10 @@ const ICONS: Record<string, LucideIcon> = {
   Hammer,
   Wrench,
   Laptop,
+  GraduationCap,
+  Briefcase,
+  Dumbbell,
+  Salad,
 };
 
 export function CategoryCard({ category }: { category: Category }) {
